@@ -13,7 +13,7 @@
 
 namespace quant_scan::fetch
 {
-    namespace details
+    namespace detail
     {
         template <typename T>
         concept HasSymbol = requires(const T& t) { { t.symbol } -> std::convertible_to<std::string>; };
@@ -31,7 +31,7 @@ namespace quant_scan::fetch
     struct Fetcher<Provider::yahoo>
     {
         template <typename Request>
-        std::optional<typename Request::result_t> fetch(const Request& request)
+        static std::optional<typename Request::result_t> fetch(const Request& request)
         {
             if constexpr (std::is_same_v<Request, OptionRequest>)
             {
@@ -71,7 +71,7 @@ namespace quant_scan::fetch
 
         // Overload when request has an expiration (optional)
         template <typename Request>
-        requires (details::HasSymbol<Request> && details::HasOptionalExpiration<Request>)
+        requires (detail::HasSymbol<Request> && detail::HasOptionalExpiration<Request>)
         static std::string build_options_url(const Request& req)
         {
             std::string url = "https://query1.finance.yahoo.com/v7/finance/options/";
@@ -87,7 +87,7 @@ namespace quant_scan::fetch
 
         // Overload when request has only a symbol
         template <typename Request>
-        requires (details::HasSymbol<Request> && (!details::HasOptionalExpiration<Request>))
+        requires (detail::HasSymbol<Request> && (!detail::HasOptionalExpiration<Request>))
         static std::string build_options_url(const Request& req)
         {
             std::string url = "https://query1.finance.yahoo.com/v7/finance/options/";
